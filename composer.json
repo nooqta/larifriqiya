@@ -1,0 +1,26 @@
+{
+    "name": "nooqta/larifriqiya",
+    "description": "A Laravel command that helps generate your models and migrations from a json file created with ifriqiya generator",
+    "license": "MIT",
+    "authors": [{
+        "name": "Anis Marrouchi",
+        "email": "anismarrouchi@hotmail.com"
+    }],
+    "require": {
+        "php": ">=5.4.0",
+        "illuminate/support": "~5.0|~6.0",
+        "laravel/helpers": "^1.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Noqta\\Larifiriqiya\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Noqta\\Larifiriqiya\\LarifiriqiyaServiceProvider"
+            ]
+        }
+    }
+}
