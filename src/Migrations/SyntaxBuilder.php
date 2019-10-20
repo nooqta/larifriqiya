@@ -13,6 +13,8 @@ class SyntaxBuilder
      */
     private $template;
 
+    private $meta;
+
     /**
      * Create the PHP syntax for the given schema.
      *
@@ -23,6 +25,7 @@ class SyntaxBuilder
      */
     public function create($schema, $meta)
     {
+        $this->meta = $meta;
         $up = $this->createSchemaForUpMethod($schema, $meta);
         $down = $this->createSchemaForDownMethod($schema, $meta);
 
@@ -41,9 +44,11 @@ class SyntaxBuilder
     private function createSchemaForUpMethod($schema, $meta, $action = 'create')
     {
         $fields = $this->constructSchema($schema);
-
+        $stub = $this->getCreateSchemaWrapper();
+        $stub = $this->replaceForeignKeys($stub);
         if ($action == 'create') {
-            return $this->insert($fields)->into($this->getCreateSchemaWrapper());
+            return $this->insert($fields)
+                        ->into($stub);
         }
 
         if ($action == 'add') {
@@ -58,6 +63,25 @@ class SyntaxBuilder
 
         // Otherwise, we have no idea how to proceed.
         throw new GeneratorException;
+    }
+
+    public function replaceForeignKeys(&$stub)
+    {
+        $tabIndent = '    ';
+        $schemaFields = '';
+        $foreignKeys = $this->meta['foreign_keys'];
+        if (!$foreignKeys) {
+            return $stub = str_replace('{{foreign_keys}}', '', $stub);
+        }
+        foreach ($foreignKeys as $fk) {
+                $schemaFields .= "\$table->foreign('" . $fk['column'] . "')"
+                . "->references('" . $fk['references'] . "')->on('" . $fk['on'] . "')";
+            if($fk['onDelete']) $schemaFields .= "->onDelete('" . $fk['onDelete'] . "')";
+            if($fk['onUpdate']) $schemaFields .= "->onUpdate('" . $fk['onUpdate'] . "')";
+            $schemaFields .= ";\n" . $tabIndent . $tabIndent . $tabIndent;
+            $stub = str_replace('{{foreign_keys}}', $schemaFields, $stub);
+            return $stub;
+        }
     }
 
     /**
@@ -80,7 +104,7 @@ class SyntaxBuilder
         // the down method, we should remove them.
         if ($action == 'add') {
             $fields = $this->constructSchema($schema, 'Drop');
-
+            
             return $this->insert($fields)->into($this->getChangeSchemaWrapper());
         }
 
@@ -184,10 +208,10 @@ class SyntaxBuilder
             }
         }
 
-        foreach ($field['options'] as $method => $value) {
-            $syntax .= sprintf("->%s(%s)", $method, $value === true ? '' : $value);
+        foreach ($field['options'] as $value) {
+            if(isset($value['key']))
+                $syntax .= sprintf("->%s(%s)", $value['key'], $value['value']);
         }
-
         return $syntax .= ';';
     }
 

@@ -5,6 +5,7 @@ namespace Nooqta\Larifriqiya\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Container\Container;
+use Illuminate\Support\Str;
 use Nooqta\Larifriqiya\Migrations\SyntaxBuilder;
 
 class MigrationCommand extends Command
@@ -178,7 +179,8 @@ class MigrationCommand extends Command
      */
     protected function getPath($name)
     {
-        return base_path() . '/database/migrations/' . date('Y_m_d_His') . '_' . $name . '.php';
+        $migrationName = 'create_' . Str::plural(strtolower($name)) . '_table.php';
+        return base_path() . '/database/migrations/' . date('Y_m_d_His') . '_' . $migrationName;
     }
     /**
      * Compile the migration stub.
@@ -219,7 +221,7 @@ class MigrationCommand extends Command
      */
     protected function replaceClassName(&$stub)
     {
-        $className = ucwords(camel_case($this->meta['name']));
+        $className = 'Create' . Str::plural(ucwords(camel_case($this->meta['name']))) . 'Table';
 
         $stub = str_replace('{{class}}', $className, $stub);
 
@@ -255,6 +257,8 @@ class MigrationCommand extends Command
 
         return $this;
     }
+
+
 
     /**
      * Get the class name for the Eloquent model generator.
