@@ -202,7 +202,10 @@ class SyntaxBuilder
             $syntax = substr($syntax, 0, -1) . ', ';
             // Check if enum type and array
             if ($field['type'] == 'enum') {
-                $syntax .= implode(', [', $field['arguments']) . '])';
+                $field['arguments'] = array_map(function($str) {
+                    return sprintf("'%s'", $str);
+                }, $field['arguments']);
+                $syntax .= '[' .implode(', ', $field['arguments']) . '])';
             } else {
                 $syntax .= implode(', ', $field['arguments']) . ')';
             }
