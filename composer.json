@@ -13,7 +13,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Noqta\\Larifiriqiya\\": "src/"
+            "Noqta\\Larifriqiya\\": "src/"
         }
     },
     "extra": {
