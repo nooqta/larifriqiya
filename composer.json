@@ -19,7 +19,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Nooqta\\Larifiriqiya\\LarifiriqiyaServiceProvider"
+                "Nooqta\\Larifriqiya\\LarifriqiyaProvider"
             ]
         }
     }
